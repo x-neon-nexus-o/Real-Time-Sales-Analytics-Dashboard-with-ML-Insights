@@ -252,9 +252,9 @@ def run_app(host=None, port=None, debug=None):
         port: Port to listen on
         debug: Debug mode
     """
-    host = host or API_CONFIG.get("host", "0.0.0.0")
-    port = port or API_CONFIG.get("port", 5000)
-    debug = debug if debug is not None else API_CONFIG.get("debug", True)
+    host = host or os.environ.get("HOST", API_CONFIG.get("host", "0.0.0.0"))
+    port = port or int(os.environ.get("PORT", API_CONFIG.get("port", 5000)))
+    debug = debug if debug is not None else os.environ.get("FLASK_ENV") != "production"
     
     app = create_app()
     
