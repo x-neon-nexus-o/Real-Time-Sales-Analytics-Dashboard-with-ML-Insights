@@ -6,7 +6,7 @@ services:
   # WEB SERVICE - Main Flask Application
   # ===========================================================================
   - type: web
-    name: sales-analytics-dashboard
+    name: sales-analytics-ml
     runtime: python
     region: oregon  # or singapore, frankfurt, ohio
     plan: free      # free, starter, standard, pro

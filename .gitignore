@@ -95,3 +95,76 @@ tmp/
 temp/
 *.tmp
 *.temp
+
+# =============================================================================
+# DEPLOYMENT & PRODUCTION
+# =============================================================================
+
+# Local development secrets (NEVER commit these!)
+.env.production
+.env.staging
+secrets/
+*.pem
+*.key
+*.crt
+
+# Local wsgi config (use render.yaml instead)
+wsgi.py
+
+# Render local testing
+.render/
+
+# Docker (if used locally)
+Dockerfile.local
+docker-compose.override.yml
+.docker/
+
+# Database files (if using SQLite locally)
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.bak
+*.backup
+backup/
+backups/
+
+# Local test data
+data/raw/*.csv
+data/processed/*.csv
+data/streaming/*.csv
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/streaming/.gitkeep
+
+# Profiling and debugging
+*.prof
+*.lprof
+profile_output/
+
+# Documentation builds
+docs/_build/
+site/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Ruff
+.ruff_cache/
+
+# Coverage reports
+coverage.xml
+*.cover
+.hypothesis/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Local scripts
+local_*.py
+test_local.py
+debug_*.py
