@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Real-Time Sales Analytics Dashboard with ML-powered forecasting and anomaly detection">
+    <title>Sales Analytics Dashboard | Real-Time ML Insights</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <div class="brand">
+                        <i class="fas fa-chart-line brand-icon"></i>
+                        <div class="brand-text">
+                            <h1>Sales Analytics</h1>
+                            <span class="subtitle">Real-Time ML Dashboard</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label for="dateRange">Date Range</label>
+                            <select id="dateRange" class="form-select form-select-sm">
+                                <option value="7">Last 7 Days</option>
+                                <option value="14">Last 14 Days</option>
+                                <option value="30" selected>Last 30 Days</option>
+                                <option value="90">Last 90 Days</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="regionFilter">Region</label>
+                            <select id="regionFilter" class="form-select form-select-sm">
+                                <option value="">All Regions</option>
+                                <option value="North America">North America</option>
+                                <option value="Europe">Europe</option>
+                                <option value="Asia Pacific">Asia Pacific</option>
+                                <option value="Latin America">Latin America</option>
+                                <option value="Middle East & Africa">Middle East & Africa</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="categoryFilter">Category</label>
+                            <select id="categoryFilter" class="form-select form-select-sm">
+                                <option value="">All Categories</option>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Clothing">Clothing</option>
+                                <option value="Food & Beverages">Food & Beverages</option>
+                                <option value="Home & Garden">Home & Garden</option>
+                                <option value="Sports & Outdoors">Sports & Outdoors</option>
+                                <option value="Books & Media">Books & Media</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="header-actions">
+                        <button id="refreshBtn" class="btn btn-outline-light btn-sm" title="Refresh Data">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button id="exportBtn" class="btn btn-outline-light btn-sm" title="Export Data">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button id="themeToggle" class="btn btn-outline-light btn-sm" title="Toggle Theme">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <div class="status-indicator" id="connectionStatus">
+                            <span class="status-dot online"></span>
+                            <span class="status-text">Live</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <div class="container-fluid">
+            <!-- KPI Cards Section -->
+            <section id="kpi-section" class="kpi-section">
+                <div class="row g-3">
+                    <div class="col-md-6 col-lg-3 col-xl-2">
+                        <div class="kpi-card" id="kpi-revenue">
+                            <div class="kpi-icon">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="kpi-content">
+                                <span class="kpi-label">Total Revenue</span>
+                                <span class="kpi-value" id="totalRevenue">$0</span>
+                                <span class="kpi-change positive" id="revenueChange">
+                                    <i class="fas fa-arrow-up"></i> 0%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 col-xl-2">
+                        <div class="kpi-card" id="kpi-transactions">
+                            <div class="kpi-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="kpi-content">
+                                <span class="kpi-label">Transactions</span>
+                                <span class="kpi-value" id="totalTransactions">0</span>
+                                <span class="kpi-change positive" id="transactionChange">
+                                    <i class="fas fa-arrow-up"></i> 0%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 col-xl-2">
+                        <div class="kpi-card" id="kpi-aov">
+                            <div class="kpi-icon">
+                                <i class="fas fa-receipt"></i>
+                            </div>
+                            <div class="kpi-content">
+                                <span class="kpi-label">Avg. Order Value</span>
+                                <span class="kpi-value" id="avgOrderValue">$0</span>
+                                <span class="kpi-change neutral" id="aovChange">
+                                    <i class="fas fa-minus"></i> 0%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 col-xl-2">
+                        <div class="kpi-card" id="kpi-customers">
+                            <div class="kpi-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="kpi-content">
+                                <span class="kpi-label">Unique Customers</span>
+                                <span class="kpi-value" id="uniqueCustomers">0</span>
+                                <span class="kpi-change positive" id="customerChange">
+                                    <i class="fas fa-arrow-up"></i> 0%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 col-xl-2">
+                        <div class="kpi-card" id="kpi-top-category">
+                            <div class="kpi-icon">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <div class="kpi-content">
+                                <span class="kpi-label">Top Category</span>
+                                <span class="kpi-value small" id="topCategory">-</span>
+                                <span class="kpi-subtext" id="topCategoryRevenue">$0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 col-xl-2">
+                        <div class="kpi-card anomaly-card" id="kpi-anomalies">
+                            <div class="kpi-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="kpi-content">
+                                <span class="kpi-label">Anomalies</span>
+                                <span class="kpi-value" id="anomalyCount">0</span>
+                                <span class="kpi-subtext" id="anomalySeverity">No alerts</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section id="charts-section" class="charts-section">
+                <div class="row g-3">
+                    <!-- Sales Trend & Forecast Chart -->
+                    <div class="col-lg-8">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3><i class="fas fa-chart-line"></i> Sales Trend & Forecast</h3>
+                                <div class="chart-actions">
+                                    <button class="btn btn-sm btn-outline-secondary" id="forecastToggle">
+                                        <i class="fas fa-magic"></i> Show Forecast
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="salesTrendChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Performance Chart -->
+                    <div class="col-lg-4">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3><i class="fas fa-chart-bar"></i> Category Performance</h3>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Regional Analysis Chart -->
+                    <div class="col-lg-4">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3><i class="fas fa-globe"></i> Regional Distribution</h3>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="regionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Anomaly Timeline Chart -->
+                    <div class="col-lg-4">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3><i class="fas fa-exclamation-circle"></i> Anomaly Detection</h3>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="anomalyChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hourly Pattern Chart -->
+                    <div class="col-lg-4">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3><i class="fas fa-clock"></i> Hourly Pattern</h3>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="hourlyChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Insights & Alerts Section -->
+            <section id="insights-section" class="insights-section">
+                <div class="row g-3">
+                    <!-- Insights Panel -->
+                    <div class="col-lg-6">
+                        <div class="insights-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-lightbulb"></i> Actionable Insights</h3>
+                                <span class="badge bg-primary" id="insightCount">0</span>
+                            </div>
+                            <div class="card-body" id="insightsList">
+                                <div class="insight-placeholder">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <span>Loading insights...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Anomaly Alerts Panel -->
+                    <div class="col-lg-6">
+                        <div class="alerts-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-bell"></i> Recent Anomalies</h3>
+                                <span class="badge bg-danger" id="alertCount">0</span>
+                            </div>
+                            <div class="card-body" id="alertsList">
+                                <div class="alert-placeholder">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>No anomalies detected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Live Transactions Table -->
+            <section id="transactions-section" class="transactions-section">
+                <div class="transactions-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-list"></i> Live Transactions</h3>
+                        <div class="header-actions">
+                            <span class="live-indicator">
+                                <span class="pulse"></span> Live
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="transactionsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Transaction ID</th>
+                                        <th>Product</th>
+                                        <th>Category</th>
+                                        <th>Region</th>
+                                        <th>Quantity</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactionsBody">
+                                    <!-- Populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <span class="footer-text">
+                        &copy; 2026 Sales Analytics Dashboard | Powered by ML
+                    </span>
+                </div>
+                <div class="col-md-6 text-end">
+                    <span class="last-updated" id="lastUpdated">
+                        Last updated: <span id="lastUpdateTime">-</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <i class="fas fa-circle-notch fa-spin"></i>
+            <span>Loading Dashboard...</span>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer">
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script src="/static/js/charts.js"></script>
+    <script src="/static/js/kpi.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
